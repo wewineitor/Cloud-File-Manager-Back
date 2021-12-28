@@ -10,7 +10,7 @@ class FilesController {
 
         const file = req.files.foo
         const directory = req.query.path
-        console.log(directory)
+        console.log(file)
         let path
         if(directory === undefined) {
             path = `${process.env.CLOUD_PATH}/${file.name}`

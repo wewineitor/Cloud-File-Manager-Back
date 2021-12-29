@@ -1,5 +1,6 @@
 import fs from 'fs'
 import dotentv from 'dotenv'
+import mime from 'mime-types'
 dotentv.config()
 
 class FilesController {
@@ -27,7 +28,19 @@ class FilesController {
     }
 
     createDirectory = (req, res) => {
-        fs.mkdir(`${process.env.CLOUD_PATH}/directorioxd`, () => {
+        const directory = req.query.path
+        const {newDirectory} = req.body
+        let path
+        if(directory === undefined) {
+            path = `${process.env.CLOUD_PATH}`
+        }
+        else {
+            const directory_path = directory.replaceAll('-', '/')
+            path = `${process.env.CLOUD_PATH}/${directory_path}`
+        }
+
+        const formatedDirectory = newDirectory.replaceAll(' ', '_')
+        fs.mkdir(`${path}/${formatedDirectory}`, () => {
             res.send({message: 'directorio creado'}) 
         })
     }
@@ -54,6 +67,30 @@ class FilesController {
                 path: path_response
             }) 
         });
+    }
+
+    downloadFile = (req, res) => {
+        
+        try {
+            const directory = req.query.path
+            const {fileName} = req.body
+
+            let path
+            if(directory === undefined) {
+                path = `${process.env.CLOUD_PATH}`
+            }
+            else {
+                const directory_path = directory.replaceAll('-', '/')
+                path = `${process.env.CLOUD_PATH}/${directory_path}`
+            }
+            const file = `${path}/${fileName}`
+
+            res.download(file);
+            //res.send(file)
+        }
+        catch (err){
+            res.status(500).send(err)
+        }
     }
 }
 
